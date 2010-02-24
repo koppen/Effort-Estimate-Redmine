@@ -16,20 +16,24 @@ module Estimate
         set_estimate_from_effort
       end
 
+      # Returns the CustomField containing the effort estimates
+      def effort_field
+        @effort_field ||= CustomField.find_by_name("Story points")
+      end
+
       # Set the estimate from the effort category
       def set_estimate_from_effort
-        effort_field_id = CustomField.find_by_name("Effort").id
-        values = self.custom_values
-        values.each do |x|
-          if x.custom_field_id == effort_field_id
-            effort = x.value
-            unless effort == "" || effort == nil
-              self.estimated_hours = case effort
-                when "Minimal (0-2 hrs)" then 2
-                when "Low (2-5 hrs)" then 5
-                when "Medium (5-10 hrs)" then 10
-                when "High (10-20 hrs)" then 20
-                when "Extra High (20+ hrs)" then 50
+        custom_values = self.custom_values
+        custom_values.each do |custom_value|
+          if custom_value.custom_field == effort_field
+            estimated_effort = custom_value.value
+            unless estimated_effort.blank?
+              self.estimated_hours = case estimated_effort.to_i
+                when 1 then 1
+                when 2 then 2
+                when 3 then 4
+                when 5 then 8
+                when 8 then 15
               end
             end
           end
